@@ -3,7 +3,8 @@
 A Node.js service that analyzes YouTube videos by extracting audio, transcribing content, and detecting AI-generated text.
 
 **Note:** Originally used GPTZero API, but switched to Hugging Face due to GPTZero no longer offering free tier.
-
+# Demo: 
+- https://drive.google.com/file/d/1hVfaC2ubZY0boPasTlWM9z13Io5IoJFP/view?usp=sharing
 ## Features
 
 - YouTube video processing with screenshot capture
