@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  youtube-analysis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY:-hf_demo}
+      - PUPPETEER_HEADLESS=true
+      - PUPPETEER_TIMEOUT=30000
+      - FFMPEG_AUDIO_FORMAT=wav
+      - FFMPEG_SAMPLE_RATE=16000
+      - FFMPEG_CHANNELS=1
+      - FFMPEG_BIT_DEPTH=16
+      - ELEVENLABS_TIMEOUT=60000
+      - HUGGINGFACE_TIMEOUT=30000
+      - CORS_ORIGIN=http://localhost:8080
+      - LOG_LEVEL=info
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M 
