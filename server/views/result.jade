@@ -1,0 +1,177 @@
+extends layout
+
+block content
+  .container
+    h1 Analysis Result
+    p Analysis ID: #{analysisId}
+    
+    if metadata && metadata.videoInfo
+      .video-info
+        h2 Video Information
+        p 
+          strong Title: 
+          | #{metadata.videoInfo.title}
+        p 
+          strong Author: 
+          | #{metadata.videoInfo.author}
+        p 
+          strong Duration: 
+          | #{metadata.videoInfo.duration} seconds
+        p 
+          strong Views: 
+          | #{metadata.videoInfo.viewCount}
+    
+    if screenshot
+      .screenshot-section
+        h2 Screenshot
+        img(src=screenshot, alt="Video Screenshot", style="max-width: 100%; height: auto;")
+    
+    if transcript && transcript.data && transcript.data.transcript
+      .transcript-section
+        h2 Transcript with AI Analysis
+        .transcript-list
+          each sentence, index in transcript.data.transcript
+            .sentence-item(class=sentence.ai_probability > 0.7 ? 'ai-generated' : sentence.ai_probability < 0.3 ? 'human-generated' : 'uncertain')
+              .sentence-text
+                strong #{index + 1}. 
+                | #{sentence.text}
+              .sentence-meta
+                if sentence.start !== undefined
+                  span.timestamp #{sentence.start.toFixed(2)}s - #{sentence.end.toFixed(2)}s
+                if sentence.speaker
+                  span.speaker Speaker #{sentence.speaker}
+                if sentence.ai_probability !== null
+                  span.ai-probability(class=sentence.ai_probability > 0.7 ? 'high' : sentence.ai_probability < 0.3 ? 'low' : 'medium')
+                    | AI Probability: #{(sentence.ai_probability * 100).toFixed(1)}%
+    
+    if metadata && metadata.summary
+      .summary-section
+        h2 Analysis Summary
+        .summary-grid
+          .summary-item
+            strong Total Sentences: 
+            | #{metadata.summary.totalSentences}
+          .summary-item
+            strong Analyzed Sentences: 
+            | #{metadata.summary.analyzedSentences}
+          .summary-item
+            strong Average AI Probability: 
+            | #{metadata.summary.averageAIProbability ? (metadata.summary.averageAIProbability * 100).toFixed(1) + '%' : 'N/A'}
+          .summary-item
+            strong AI Generated: 
+            | #{metadata.summary.aiGeneratedSentences}
+          .summary-item
+            strong Human Generated: 
+            | #{metadata.summary.humanGeneratedSentences}
+          .summary-item
+            strong Uncertain: 
+            | #{metadata.summary.uncertainSentences}
+    
+    .actions
+      a.btn.btn-primary(href="/") ← Back to Analysis
+      a.btn.btn-secondary(href="/result/" + analysisId + "?format=json", target="_blank") View JSON
+      a.btn.btn-info(href="/result/" + analysisId + "/transcript", target="_blank") Transcript Only
+
+style.
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .video-info, .screenshot-section, .transcript-section, .summary-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
+  }
+  
+  .sentence-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 4px solid #ddd;
+    background: white;
+  }
+  
+  .sentence-item.ai-generated {
+    border-left-color: #ff6b6b;
+    background: #fff5f5;
+  }
+  
+  .sentence-item.human-generated {
+    border-left-color: #51cf66;
+    background: #f8fff9;
+  }
+  
+  .sentence-item.uncertain {
+    border-left-color: #ffd43b;
+    background: #fffbf0;
+  }
+  
+  .sentence-meta {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+  }
+  
+  .timestamp, .speaker, .ai-probability {
+    margin-right: 15px;
+  }
+  
+  .ai-probability.high {
+    color: #ff6b6b;
+    font-weight: bold;
+  }
+  
+  .ai-probability.low {
+    color: #51cf66;
+    font-weight: bold;
+  }
+  
+  .ai-probability.medium {
+    color: #ffd43b;
+    font-weight: bold;
+  }
+  
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  
+  .summary-item {
+    padding: 10px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  .actions {
+    margin-top: 30px;
+    text-align: center;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+  
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .btn-info {
+    background: #17a2b8;
+    color: white;
+  }
