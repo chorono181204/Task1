@@ -21,7 +21,7 @@ class AudioService {
       const tempInputPath = path.join(config.audioDir, `${analysisId}_temp.mp3`);
       const outputPath = path.join(config.audioDir, `${analysisId}_converted.wav`);
       
-      // Write audio buffer to temp file
+      
       await fs.writeFile(tempInputPath, audioBuffer);
       
       return new Promise((resolve, reject) => {

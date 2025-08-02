@@ -77,18 +77,18 @@ class TranscriptionService {
       };
 
               for (const word of data.words) {
-          // Logic tách câu giống YouTube subtitle
+         
           const shouldSplit = currentSentence.start && (
-            // Khoảng lặng > 1.2s (giống YouTube)
-            word.start - currentSentence.end > 1.2 || 
-            // Thay đổi speaker
+            
+            word.start - currentSentence.end > 1.0 || 
+            
             (word.speaker && word.speaker !== currentSentence.speaker) ||
-            // Câu quá dài (>35 từ - giống YouTube)
-            currentSentence.text.split(' ').length > 35 ||
-            // Dấu câu kết thúc + khoảng lặng ngắn
-            (currentSentence.text.trim().match(/[.!?]$/) && word.start - currentSentence.end > 0.5) ||
-            // Thời gian câu quá dài (>8 giây)
-            (currentSentence.end - currentSentence.start > 8)
+           
+            currentSentence.text.split(' ').length > 30 ||
+           
+            (currentSentence.text.trim().match(/[.!?]$/) && word.start - currentSentence.end > 0.3) ||
+          
+            (currentSentence.end - currentSentence.start > 6)
           );
           
           if (shouldSplit) {
@@ -134,7 +134,7 @@ class TranscriptionService {
       }
 
     } else if (data.text) {
-      // Xử lý trường hợp chỉ có text, không có word timestamps
+     
       const sentences = this.splitTextIntoSentences(data.text);
       let currentTime = 0;
       const timePerSentence = data.duration / sentences.length;
@@ -154,23 +154,23 @@ class TranscriptionService {
     return transcript;
   }
 
-  // Tách text thành câu giống YouTube subtitle
+
   splitTextIntoSentences(text) {
-    // Tách theo dấu câu kết thúc câu
+   
     let sentences = text.split(/(?<=[.!?])\s+/);
     
-    // Nếu câu quá dài, tách thêm theo dấu phẩy
+    
     sentences = sentences.flatMap(sentence => {
-      if (sentence.length > 150) {
+      if (sentence.length > 120) {
         return sentence.split(/,\s+/).map(s => s.trim());
       }
       return [sentence];
     });
     
-    // Lọc và giới hạn độ dài giống YouTube
+    
     return sentences
       .map(s => s.trim())
-      .filter(s => s.length > 5 && s.length < 120) // Giống YouTube subtitle
+      .filter(s => s.length > 5 && s.length < 100)
       .filter(s => s.length > 0);
   }
 

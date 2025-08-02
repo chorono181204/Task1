@@ -253,7 +253,7 @@ class YouTubeService {
       return {
         success: true,
         videoInfo,
-        screenshot: screenshotResult.screenshot.url, // Lấy URL thay vì object
+        screenshot: screenshotResult.screenshot.url, 
         audio: audioResult.audio,
         metadata
       };

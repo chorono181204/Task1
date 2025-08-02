@@ -1,20 +1,22 @@
 const analyzeService = require('../services/analyzeService');
 
 class AnalyzeController {
-  // POST /analyze - Start analysis
+
   async analyzeYouTubeVideo(req, res) {
     try {
+     
       const { youtubeUrl } = req.body;
       
-      // Validate input
+    
       if (!youtubeUrl) {
         return res.status(400).json({
           success: false,
-          error: 'YouTube URL is required'
+          error: 'YouTube URL is required',
+          receivedBody: req.body
         });
       }
       
-      // Validate YouTube URL format
+     
       if (!youtubeUrl.includes('youtube.com') && !youtubeUrl.includes('youtu.be')) {
         return res.status(400).json({
           success: false,
@@ -24,10 +26,10 @@ class AnalyzeController {
       
 
       
-      // Start analysis
+     
       const result = await analyzeService.analyzeYouTubeVideo(youtubeUrl);
       
-      // Return success response
+     
       res.status(200).json({
         success: true,
         message: 'Analysis completed successfully',
@@ -35,7 +37,7 @@ class AnalyzeController {
         youtubeUrl: result.youtubeUrl,
         videoInfo: result.videoInfo,
         summary: result.summary,
-        screenshot: result.screenshot, // Thêm screenshot URL
+        screenshot: result.screenshot, 
         resultUrl: `/result/${result.analysisId}`
       });
       
@@ -48,7 +50,7 @@ class AnalyzeController {
     }
   }
   
-  // GET /analyze/status/:id - Check analysis status
+
   async getAnalysisStatus(req, res) {
     try {
       const { id } = req.params;
@@ -75,7 +77,7 @@ class AnalyzeController {
     }
   }
   
-  // GET /analyze/list - List all analyses
+
   async listAnalyses(req, res) {
     try {
       const analyses = await analyzeService.listAnalyses();
@@ -94,7 +96,7 @@ class AnalyzeController {
     }
   }
   
-  // DELETE /analyze/:id - Delete analysis
+
   async deleteAnalysis(req, res) {
     try {
       const { id } = req.params;
@@ -121,7 +123,7 @@ class AnalyzeController {
     }
   }
   
-  // GET /analyze/health - System health check
+
   async getSystemHealth(req, res) {
     try {
       const health = await analyzeService.getSystemHealth();

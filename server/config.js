@@ -24,7 +24,7 @@ module.exports = {
   elevenLabsTimeout: parseInt(process.env.ELEVENLABS_TIMEOUT) || 60000,
   huggingFaceTimeout: parseInt(process.env.HUGGINGFACE_TIMEOUT) || 30000,
   
-  corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  corsOrigin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:3000'),
   
   logLevel: process.env.LOG_LEVEL || 'info',
   

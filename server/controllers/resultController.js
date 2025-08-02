@@ -1,7 +1,7 @@
 const analyzeService = require('../services/analyzeService');
 
 class ResultController {
-  // GET /result/:id - Get analysis result
+
   async getAnalysisResult(req, res) {
     try {
       const { id } = req.params;
@@ -15,12 +15,12 @@ class ResultController {
       
       const result = await analyzeService.getAnalysisResult(id);
       
-      // Check if client wants JSON or HTML
+      
       const acceptHeader = req.headers.accept || '';
       const wantsJson = acceptHeader.includes('application/json') || req.query.format === 'json';
       
       if (wantsJson) {
-        // Return JSON response
+        
         res.status(200).json({
           success: true,
           analysisId: result.analysisId,
@@ -29,7 +29,7 @@ class ResultController {
           metadata: result.metadata
         });
       } else {
-        // Return HTML view
+        
         res.render('result', {
           title: 'Analysis Result',
           analysisId: result.analysisId,
@@ -55,7 +55,7 @@ class ResultController {
     }
   }
   
-  // GET /result/:id/transcript - Get transcript only
+
   async getTranscript(req, res) {
     try {
       const { id } = req.params;
@@ -90,7 +90,7 @@ class ResultController {
     }
   }
   
-  // GET /result/:id/screenshot - Get screenshot only
+
   async getScreenshot(req, res) {
     try {
       const { id } = req.params;
@@ -111,7 +111,7 @@ class ResultController {
         });
       }
       
-      // Redirect to screenshot file
+      
       res.redirect(result.screenshot);
       
     } catch (error) {
@@ -129,7 +129,7 @@ class ResultController {
     }
   }
   
-  // GET /result/:id/metadata - Get metadata only
+
   async getMetadata(req, res) {
     try {
       const { id } = req.params;
@@ -164,7 +164,7 @@ class ResultController {
     }
   }
   
-  // GET /result/:id/summary - Get analysis summary
+
   async getSummary(req, res) {
     try {
       const { id } = req.params;
@@ -178,7 +178,7 @@ class ResultController {
       
       const result = await analyzeService.getAnalysisResult(id);
       
-      // Extract summary information
+      
       const summary = {
         analysisId: result.analysisId,
         videoInfo: result.metadata?.videoInfo,

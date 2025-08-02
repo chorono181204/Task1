@@ -72,7 +72,7 @@ class AIAnalysisService {
 
   async analyzeTranscript(transcript) {
     try {
-      // Handle both direct array and nested object format
+      
       let sentences = transcript;
       if (transcript && transcript.data && transcript.data.transcript) {
         sentences = transcript.data.transcript;

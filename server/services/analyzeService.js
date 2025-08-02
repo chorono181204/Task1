@@ -12,12 +12,12 @@ class AnalyzeService {
     this.config = config;
   }
 
-  // Generate unique analysis ID
+  
   generateAnalysisId() {
     return `analysis_${Date.now()}_${uuidv4().substring(0, 8)}`;
   }
 
-  // Main analysis workflow
+  
   async analyzeYouTubeVideo(youtubeUrl) {
     const analysisId = this.generateAnalysisId();
     
@@ -113,7 +113,7 @@ class AnalyzeService {
     }
   }
 
-  // Get analysis status
+  
   async getAnalysisStatus(analysisId) {
     try {
       const result = await storageService.getResult(analysisId);
@@ -144,7 +144,7 @@ class AnalyzeService {
     }
   }
 
-  // Get analysis result
+
   async getAnalysisResult(analysisId) {
     try {
       const result = await storageService.getResult(analysisId);
@@ -166,7 +166,7 @@ class AnalyzeService {
     }
   }
 
-  // List all analyses
+
   async listAnalyses() {
     try {
       return await storageService.listAnalyses();
@@ -175,7 +175,7 @@ class AnalyzeService {
     }
   }
 
-  // Delete analysis
+
   async deleteAnalysis(analysisId) {
     try {
       const success = await storageService.deleteAnalysis(analysisId);
@@ -191,7 +191,7 @@ class AnalyzeService {
   }
 
  
-  // Get system health
+
   async getSystemHealth() {
     try {
       const serviceTests = await this.testServices();
