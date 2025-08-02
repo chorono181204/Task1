@@ -40,6 +40,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Ignore common browser requests
+app.use((req, res, next) => {
+  if (req.path === '/favicon.ico' || req.path === '/robots.txt' || req.path === '/.well-known/appspecific/com.chrome.devtools.json') {
+    return res.status(404).end();
+  }
+  next();
+});
 
 app.use('/', indexRouter);
 
