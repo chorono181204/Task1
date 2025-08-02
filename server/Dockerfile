@@ -10,7 +10,14 @@ RUN apk add --no-cache \
     harfbuzz \
     ca-certificates \
     ttf-freefont \
-    ffmpeg
+    ffmpeg \
+    python3 \
+    py3-pip \
+    curl
+
+# Install yt-dlp using curl
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
@@ -19,13 +26,13 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /app
 
 
-COPY server/package*.json ./
+COPY package*.json ./
 
 
 RUN npm ci --only=production
 
 
-COPY server/ ./
+COPY . ./
 
 
 RUN mkdir -p uploads/screenshots uploads/audio uploads/results

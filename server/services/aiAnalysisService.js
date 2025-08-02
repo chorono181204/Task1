@@ -72,11 +72,17 @@ class AIAnalysisService {
 
   async analyzeTranscript(transcript) {
     try {
-      if (!Array.isArray(transcript) || transcript.length === 0 || typeof transcript[0].text !== 'string') {
+      // Handle both direct array and nested object format
+      let sentences = transcript;
+      if (transcript && transcript.data && transcript.data.transcript) {
+        sentences = transcript.data.transcript;
+      }
+      
+      if (!Array.isArray(sentences) || sentences.length === 0 || typeof sentences[0].text !== 'string') {
         throw new Error('Invalid transcript format: expected array of sentence objects');
       }
 
-      const analyzedSentences = await this.analyzeSentences(transcript);
+      const analyzedSentences = await this.analyzeSentences(sentences);
       const summary = this.calculateSummary(analyzedSentences);
 
       return {
@@ -87,7 +93,7 @@ class AIAnalysisService {
         },
         summary,
         metadata: {
-          totalSentences: transcript.length,
+          totalSentences: sentences.length,
           analyzedSentences: analyzedSentences.length,
           averageAIProbability: summary.averageAIProbability,
           aiGeneratedSentences: summary.aiGeneratedSentences,
