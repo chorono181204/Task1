@@ -72,22 +72,20 @@ class AIAnalysisService {
 
   async analyzeTranscript(transcript) {
     try {
-      //console.log('🔍 Transcript input:', JSON.stringify(transcript, null, 2));
+      console.log('🔍 Transcript input:', JSON.stringify(transcript, null, 2));
       
       let sentences = transcript;
       if (transcript && transcript.data && transcript.data.transcript) {
         sentences = transcript.data.transcript;
       }
       
-      //console.log('🔍 Sentences after processing:', JSON.stringify(sentences, null, 2));
+      console.log('🔍 Sentences after processing:', JSON.stringify(sentences, null, 2));
       
       if (!Array.isArray(sentences) || sentences.length === 0) {
         throw new Error('Invalid transcript format: expected array of sentence objects');
       }
       
-      // Check if first sentence has text property
       if (sentences[0] && typeof sentences[0] === 'object' && !sentences[0].text) {
-        // Convert string array to object array
         sentences = sentences.map((sentence, index) => {
           if (typeof sentence === 'string') {
             return {
