@@ -15,54 +15,53 @@ class TranscriptionService {
 
   async transcribeAudio(audioBuffer, analysisId) {
     try {
-      console.log('📝 Starting transcription for analysis:', analysisId);
-      console.log('📝 Audio buffer size:', audioBuffer.length);
-      
-      if (!audioBuffer || audioBuffer.length === 0) {
-        console.log('📝 Error: Empty audio buffer');
-        throw new Error('Empty audio buffer');
+      if (!this.validateApiKey()) {
+        throw new Error('Missing ElevenLabs API key');
       }
 
-      const response = await axios.post(
-        'https://api.elevenlabs.io/v1/speech-to-text',
-        audioBuffer,
-        {
-          headers: {
-            'xi-api-key': this.apiKey,
-            'Content-Type': 'audio/wav'
-          },
-          timeout: config.elevenLabsTimeout
-        }
-      );
-
-      console.log('📝 ElevenLabs response status:', response.status);
-      console.log('📝 ElevenLabs response data:', JSON.stringify(response.data, null, 2));
-
-      if (!response.data || !response.data.words) {
-        console.log('📝 Error: Invalid response from ElevenLabs');
-        throw new Error('Invalid response from ElevenLabs');
+      const maxSize = 25 * 1024 * 1024;
+      if (audioBuffer.length > maxSize) {
+        throw new Error(`Audio too large: ${(audioBuffer.length / 1024 / 1024).toFixed(2)} MB > 25MB`);
       }
 
-      const transcript = this.formatTranscript(response.data);
-      console.log('📝 Formatted transcript:', JSON.stringify(transcript, null, 2));
+
+
+      const formData = new FormData();
+      formData.append('file', audioBuffer, {
+        filename: `${analysisId}.wav`,
+        contentType: 'audio/wav'
+      });
+      formData.append('model_id', 'scribe_v1');
+      formData.append('word_timestamps', 'true');
+      formData.append('speaker_diarization', 'true');
+
+      const response = await axios.post(`${this.baseUrl}/speech-to-text`, formData, {
+        headers: {
+          'xi-api-key': this.apiKey,
+          ...formData.getHeaders()
+        },
+        timeout: this.timeout
+      });
+
+      const rawTranscript = response.data;
+      const transcript = this.formatTranscript(rawTranscript);
 
       return {
-        transcript: {
-          data: {
-            transcript: transcript
-          }
-        },
+        success: true,
+        transcript,
         metadata: {
-          source: 'elevenlabs',
-          wordCount: response.data.words?.length || 0,
-          duration: response.data.words?.length > 0 ? 
-            response.data.words[response.data.words.length - 1].end : 0
+          model: rawTranscript.model_id,
+          duration: rawTranscript.duration,
+          language: rawTranscript.language,
+          totalSentences: transcript.length,
+          hasSpeakerDiarization: transcript.some(s => s.speaker !== null),
+          hasWordTimestamps: transcript.some(s => s.words.length > 0)
         }
       };
 
     } catch (error) {
-      console.log('📝 Transcription error:', error.message);
-      throw new Error(`Transcription failed: ${error.message}`);
+      const message = error.response?.data?.detail || error.message;
+      throw new Error(`Failed to transcribe audio: ${typeof message === 'object' ? JSON.stringify(message) : message}`);
     }
   }
 
@@ -220,7 +219,6 @@ class TranscriptionService {
 
   async processAudioForTranscription(audioBuffer, analysisId) {
     try {
-      console.log('Processing audio for transcription...');
       if (!audioBuffer || audioBuffer.length === 0) {
         throw new Error('Invalid audio buffer');
       }

@@ -88,10 +88,8 @@ class AudioService {
             '-sample_fmt', 's16'
           ])
           .on('start', (commandLine) => {
-            console.log('FFmpeg command:', commandLine);
           })
           .on('progress', (progress) => {
-            console.log(`Processing: ${progress.percent}% done`);
           })
           .on('end', async () => {
             try {
@@ -133,7 +131,7 @@ class AudioService {
       fs.writeFile(tempPath, audioBuffer)
         .then(() => {
           ffmpeg.ffprobe(tempPath, (error, metadata) => {
-            fs.unlink(tempPath).catch(() => {}); // Clean up
+            fs.unlink(tempPath).catch(() => {});
             
             if (error) {
               reject(new Error(`Failed to get audio info: ${error.message}`));
