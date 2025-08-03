@@ -148,11 +148,18 @@ class YouTubeService {
 
   async downloadAudio(url, analysisId) {
     try {
-
+      console.log('🎵 Starting audio download for:', url);
+      console.log('🎵 Analysis ID:', analysisId);
 
       const rawOutputPath = path.resolve(`/tmp/${analysisId}_raw.wav`);
       const finalOutputPath = path.resolve(`/tmp/${analysisId}_converted.wav`);
+      
+      console.log('🎵 Raw output path:', rawOutputPath);
+      console.log('🎵 Final output path:', finalOutputPath);
+
       await new Promise((resolve, reject) => {
+        console.log('🎵 Starting yt-dlp process...');
+        
         const yt = spawn('yt-dlp', [
           '-x',
           '--audio-format', 'wav',
@@ -164,9 +171,18 @@ class YouTubeService {
           url
         ]);
 
-        yt.stderr.on('data', data => {});
+        console.log('🎵 yt-dlp command:', yt.spawnargs.join(' '));
+
+        yt.stderr.on('data', data => {
+          console.log('🎵 yt-dlp stderr:', data.toString());
+        });
+
+        yt.stdout.on('data', data => {
+          console.log('🎵 yt-dlp stdout:', data.toString());
+        });
 
         yt.on('close', code => {
+          console.log('🎵 yt-dlp exited with code:', code);
           if (code !== 0) {
             return reject(new Error(`yt-dlp exited with code ${code}`));
           }
@@ -174,19 +190,32 @@ class YouTubeService {
         });
       });
 
+      console.log('🎵 yt-dlp completed, starting FFmpeg...');
+
       await new Promise((resolve, reject) => {
         ffmpeg(rawOutputPath)
           .audioChannels(1)
           .audioFrequency(16000)
           .audioCodec('pcm_s16le')
           .format('wav')
-          .on('error', err => reject(new Error(`FFmpeg error: ${err.message}`)))
-          .on('end', () => resolve())
+          .on('error', err => {
+            console.log('🎵 FFmpeg error:', err.message);
+            reject(new Error(`FFmpeg error: ${err.message}`));
+          })
+          .on('end', () => {
+            console.log('🎵 FFmpeg completed successfully');
+            resolve();
+          })
           .save(finalOutputPath);
       });
 
+      console.log('🎵 Reading final audio file...');
       const finalBuffer = fs.readFileSync(finalOutputPath);
+      console.log('🎵 Audio buffer size:', finalBuffer.length);
+      
       const result = await storageService.saveAudio(analysisId, finalBuffer);
+      console.log('🎵 Audio saved successfully');
+      
       fs.unlinkSync(rawOutputPath);
       fs.unlinkSync(finalOutputPath);
 
@@ -198,6 +227,9 @@ class YouTubeService {
       };
 
     } catch (error) {
+      console.log('🎵 Audio download failed:', error.message);
+      console.log('🎵 Using dummy audio...');
+      
       const dummyWavHeader = Buffer.from([
         0x52, 0x49, 0x46, 0x46, 0x24, 0x00, 0x00, 0x00,
         0x57, 0x41, 0x56, 0x45, 0x66, 0x6D, 0x74, 0x20,
